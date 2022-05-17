@@ -6,11 +6,14 @@ from settings import Settings
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+
+
 class AlienInvasion:
     """Overall class to manage game assets and behavior."""
 
-    def __init__(self):           #Initialize the game, and create game resources.
+    def __init__(self, ai_game):           #Initialize the game, and create game resources.
        
+        super()._init_()
         pygame.init() #1
         self.settings = Settings()
         self.screen = pygame.display.set_mode((self.settings.screen_width,self.settings.screen_height)) #2
@@ -18,6 +21,8 @@ class AlienInvasion:
         self.settings.screen_width = self.screen.get_rect().width
         self.settings.screen_height = self.screen.get_rect().height
         pygame.display.set_caption("Alien Invasion")
+        self.screen = ai_game.screen
+        self.settings = ai_game.settings
 
         self.bg_color = (230, 230, 230) # Set the background color
         self.ship = Ship(self)
@@ -25,6 +30,11 @@ class AlienInvasion:
         self.aliens = pygame.sprite.Group()
 
         self.create_fleet()
+
+    def update(self):
+        """Move the alien to the right."""
+        self.x += self.settings.alien_speed
+        self.rect.x = self.x
 
     def _create_fleet(self):
         """Create the fleet of aliens."""
@@ -64,15 +74,18 @@ class AlienInvasion:
         while True:                        #3
             #Watch for keyboard and mouse events.
             self._check_events()
+            self.aliens.update() #update the positions of all aliens in the fleet.
             self.ship.update()
-            self.bullets.update()
+            self._update_bullets()
+            self._update_aliens()
+            self._update_screen()
             #get rid of bullets that have disappeared.
             for bullet in self.bullets.copy():
                 if bullet.rect.bottom <= 0:
                     self.bullets.remove(bullet)
             print(len(self.bullets))
 
-            self._update_screen()
+           
     
     def _check_events(self):
             for event in pygame.event.get():   #4
