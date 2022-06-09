@@ -1,4 +1,3 @@
-from curses.ascii import SP
 import pygame
 from pygame.sprite import Sprite
 
